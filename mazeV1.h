@@ -10,24 +10,36 @@ void mazeInit();
 
 #define led 12
 // Multiplexer
-#define sel0 23
-#define sel1 5
-#define sel2 19
-#define sel3 18
+#define sel0 19
+#define sel1 18
+#define sel2 5
+#define sel3 23
 #define EN_F 13
-#define EN_R 4
+#define EN_R 33
 // Adc
-#define ADC 2
+#define ADC 14
 // motor
-#define motorKn1 27
-#define motorKn2 26
-#define motorKr1 25
-#define motorKr2 33
+#define motorKn1 25
+#define motorKn2 4
+#define motorKr1 27
+#define motorKr2 26
 // button
 #define btn1 35
+#define btn2 34
+#define btn3 36
+#define btn4 39
 // logic
 #define ff true
 #define bb false
+//logic belok
+#define kiri true
+#define kanan false
+//logic warna
+#define putih false
+#define hitam true
+//logic maju mundur
+#define _maju true
+#define _mundur false
 // encoder
 #define encKn 15
 #define encKr 32
@@ -36,13 +48,19 @@ void mazeInit();
 // end pid
 void pidvalue(float kp_, float ki_, float kd_);
 // function
-int errorlineF(bool kondisi);
+int errorlineB(bool kondisi);
 float errorF(bool kondisi);
 int btnT();
 void readmuxF();
 void readmuxB();
-int errorlineF(bool kondisi);
-bool detectcross(bool sensor);
+
+int errorlineB(bool kondisi);
+int errorlineW(bool kondisi);
+
+float newErrorlineB(bool kondisi);
+float newErrorlineW(bool kondisi);
+
+bool detectcross(bool sensor, bool warna);
 float errorF(bool kondisi);
 void mundur(int speed_);
 void maju(int speed_);
@@ -61,19 +79,32 @@ void pkiriT(int speed_, int timer);
 void pkananT(int speed_, int timer);
 void majutimer(int Skanan, int Skiri, int timer);
 void mundurtimer(int Skanan, int Skiri, int timer);
-void linefollower(int Skiri, int Skanan, bool sensor);
-void linecrossfind(int Skiri, int Skanan, bool sensor, int rem);
-void noLinefind(int Skiri, int Skanan, bool sensor);
+//line follower
+void linefollower(int Skiri, int Skanan, bool sensor, bool warna);
+void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warna);
+void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna);
+void noLinefind(int Skiri, int Skanan, bool sensor, bool warna, int rem);
+void findCross(int speed, bool sensor, bool warna, int rem);
+
+//belok
+void findKiri(int speed, int rem)
+
 void bkanan(int speed, bool sensor, int rem);
 void bkiri(int speed, bool sensor, int rem);
 void majuremS(int timer_);
 void mundurremS(int timer_);
+bool _button(int pin);
 void IRAM_ATTR pulseCountKn();
 void IRAM_ATTR pulseCountKr();
 int pulsaKn();
 int pulsaKr();
 float mmKn();
 float mmKr();
-void majuenC(int speed, bool arah, int jkanan, int jkiri, int brake);
+void motorEnc(int speed, bool arah, int jkanan, int jkiri, int brake);
+void belokEnc(int speed, bool arahBelok, int jaraKiri, int jaraKanan);
+void motorBerhenti();
+
+//pid
+void pidvalue(float kp_, float ki_, float kd_);
 
 #endif
