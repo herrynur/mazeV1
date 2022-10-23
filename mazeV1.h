@@ -4,6 +4,9 @@
 #include <Arduino.h>
 #include <GyverOLED.h>
 #include <analogWrite.h>
+#include <EEPROM.h>
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
 
 #define mazeInit mazeInit
 void mazeInit();
@@ -61,6 +64,7 @@ float newErrorlineB(bool kondisi);
 float newErrorlineW(bool kondisi);
 
 bool detectcross(bool sensor, bool warna);
+bool detectCenter(bool sensor, bool warna);
 float errorF(bool kondisi);
 void mundur(int speed_);
 void maju(int speed_);
@@ -85,12 +89,11 @@ void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warn
 void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna);
 void noLinefind(int Skiri, int Skanan, bool sensor, bool warna, int rem);
 void findCross(int speed, bool sensor, bool warna, int rem);
+void lfDelay(int Skiri, int Skanan, bool sensor, bool warna, int rem, int delay_);
+int errorKhusus(bool kondisi);
 
-//belok
-void findKiri(int speed, int rem)
-
-void bkanan(int speed, bool sensor, int rem);
-void bkiri(int speed, bool sensor, int rem);
+void bkanan(int speed, bool sensor, int rem, bool warna);
+void bkiri(int speed, bool sensor, int rem, bool warna);
 void majuremS(int timer_);
 void mundurremS(int timer_);
 bool _button(int pin);
@@ -104,7 +107,25 @@ void motorEnc(int speed, bool arah, int jkanan, int jkiri, int brake);
 void belokEnc(int speed, bool arahBelok, int jaraKiri, int jaraKanan);
 void motorBerhenti();
 
+void kalibrasi();
+
 //pid
 void pidvalue(float kp_, float ki_, float kd_);
 
+//Servo
+#define buka true
+#define tutup false
+
+void servoCapit(bool kondisi);
+
+#define pickup true
+#define pickdown false
+
+void servoPickup();
+void servoPickDown();
+
+void capitOpen();
+void capitClose();
+
+void lempar();
 #endif

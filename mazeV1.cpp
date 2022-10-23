@@ -32,9 +32,34 @@ float kd = 0.00;
 #define pid1() pidvalue(0.04, 0.00, 1.25)  // speed 100
 #define pid2() pidvalue(0.045, 0.00, 1.75) // pid sik gendeng
 
+int putih_[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int hitam_[14] = {4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095};
+int adcrange[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+// servo general
+#define SERVO_FREQ 50
+
+// servo capit
+#define capitMIN 600
+#define capitMAX 2400
+uint8_t capit = 0;
+
+// servo updown
+#define updownMIN 10
+#define updownMAX 600
+uint8_t UpDown = 1;
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
 void setup()
 {
   Serial.begin(115200);
+  EEPROM.begin(14);
+  for (int i = 0; i <= 11; i++)
+  {
+    adcrange[i] = EEPROM.read(i) * 16;
+    delay(10);
+  }
   oled.init();
   // pinmode
   pinMode(led, OUTPUT);
@@ -87,6 +112,9 @@ void setup()
   pinMode(led, OUTPUT);
   // custom init
   mazeInit();
+  // servo
+  pwm.begin();
+  pwm.setPWMFreq(SERVO_FREQ);
 }
 
 // PID
@@ -96,6 +124,41 @@ void pidvalue(float kp_, float ki_, float kd_)
   kd = kd_;
   ki = ki_;
 }
+
+// <---- Fungsi Servo disini --->
+// --------------------------------------------------
+void capitOpen()
+{
+  pwm.setPWM(0, 0, 250);
+  delay(500);
+}
+
+void capitClose()
+{
+  pwm.setPWM(0, 0, 500);
+  delay(500);
+}
+
+void servoPickup()
+{
+  pwm.setPWM(1, 0, 370);
+  delay(500);
+}
+
+void servoPickDown()
+{
+  pwm.setPWM(1, 0, 100);
+  delay(500);
+}
+
+void lempar()
+{
+  pwm.setPWM(2, 0, 100);
+  delay(3000);
+  pwm.setPWM(2, 0, 0);
+}
+// <---- Akhir Fungsi Servo disini --->
+// --------------------------------------------------
 
 // <---- Fungsi Pembacaan Button disini --->
 // --------------------------------------------------
@@ -111,6 +174,38 @@ bool _button(int pin)
 
 // <---- Fungsi Pembacaan Sensor disini --->
 // --------------------------------------------------
+void kalibrasi()
+{
+  for (int i = 0; i <= 11; i++)
+  {
+    readmuxF();
+
+    if (s[i] < putih_[i])
+      putih_[i] = s[i];
+    if (s[i] > hitam_[i])
+      hitam_[i] = s[i];
+
+    adcrange[i] = putih_[i] + ((hitam_[i] - putih_[i]) / 2);
+    hasil_adc[i] = s[i];
+    EEPROM.write(i, adcrange[i] / 16);
+    EEPROM.commit();
+    if (hasil_adc[i] > adcrange[i])
+    {
+      hasil_adc[i] = 1;
+    }
+    else
+    {
+      hasil_adc[i] = 0;
+    }
+  }
+  Serial.print("HASIL KALIBRASI   = ");
+  for (int i = 0; i <= 11; i++)
+  {
+    Serial.print(hasil_adc[i]);
+    Serial.print(" ");
+  }
+  Serial.println(" ");
+}
 void readmuxF()
 {
   digitalWrite(EN_F, 0);
@@ -190,7 +285,7 @@ void readmuxF()
   /////////////////////////////////////
   for (int i = 0; i <= 11; i++)
   {
-    if (s[i] >= 3300)
+    if (s[i] >= adcrange[i])
     {
       hasil_adc[i] = 1;
     }
@@ -206,7 +301,7 @@ void readmuxF()
   for (int i = 0; i <= 11; i++)
   {
     oled.print(hasil_adc[i]);
-    Serial.print(s[i]);
+    Serial.print(hasil_adc[i]);
     Serial.print("-");
   }
   Serial.println();
@@ -304,7 +399,7 @@ void readmuxB()
   /////////////////////////////////////
   for (int i = 0; i <= 11; i++)
   {
-    if (s[i] >= 3300)
+    if (s[i] >= adcrange[i])
     {
       hasil_adc[i] = 1;
     }
@@ -320,10 +415,29 @@ void readmuxB()
   for (int i = 11; i >= 0; i--)
   {
     oled.print(hasil_adc[i]);
-    // Serial.print(hasil_adc[i]);
+    Serial.print(hasil_adc[i]);
+    Serial.print("-");
   }
-  // Serial.println();
+  Serial.println();
   oled.update();
+}
+
+int errorKhusus(bool kondisi)
+{
+  int errorline = 0;
+  errorline = errorF(kondisi);
+
+  int16_t error_ = 0;
+  switch (errorline)
+  {
+  case 0b111100000000:
+    error_ = -100;
+    break;
+  case 0b000000001111:
+    error_ = 100;
+    break;
+  }
+  return error_;
 }
 
 int errorlineB(bool kondisi)
@@ -562,64 +676,109 @@ float newErrorlineW(bool kondisi)
   int16_t error_ = 0;
   switch (errorline)
   {
-  case 0b001111111111:
-    error_ = -62;
+  case 0b000000000111:
+    error_ = 22;
     break;
-  case 0b000111111111:
-    error_ = -54;
+  case 0b000000001110:
+    error_ = 14;
     break;
-  case 0b100111111111:
-    error_ = -45;
-    break;
-  case 0b100011111111:
-    error_ = -36;
-    break;
-  case 0b110011111111:
-    error_ = -28;
-    break;
-  case 0b110000111111:
-    error_ = -20;
-    break;
-  case 0b110001111111:
-    error_ = -12;
-    break;
-  case 0b111000111111:
-    error_ = -8;
-    break;
-  case 0b111000011111:
-    error_ = -6;
-    break;
-  case 0b111100001111:
-    error_ = 0;
-    break;
-  case 0b111110000111:
-    error_ = 6;
-    break;
-  case 0b111111000111:
+  case 0b000000011100:
     error_ = 8;
     break;
-  case 0b111111000011:
+  case 0b000000111000:
+    error_ = 2;
+    break;
+  case 0b000001110000:
+    error_ = 0;
+    break;
+  case 0b000011100000:
+    error_ = 0;
+    break;
+  case 0b000111000000:
+    error_ = -2;
+    break;
+  case 0b001110000000:
+    error_ = -8;
+    break;
+  case 0b011100000000:
+    error_ = -14;
+    break;
+  case 0b111000000000:
+    error_ = -22;
+    break;
+
+  case 0b000000000001:
+    error_ = 22;
+    break;
+  case 0b000000000011:
+    error_ = 18;
+    break;
+  case 0b000000000010:
+    error_ = 16;
+    break;
+  case 0b000000000110:
+    error_ = 14;
+    break;
+  case 0b000000000100:
     error_ = 12;
     break;
-  case 0b111111100011:
-    error_ = 20;
+  case 0b000000001100:
+    error_ = 10;
     break;
-  case 0b111111110011:
-    error_ = 28;
+  case 0b000000001000:
+    error_ = 8;
     break;
-  case 0b111111110001:
-    error_ = 36;
+  case 0b000000011000:
+    error_ = 6;
     break;
-  case 0b111111111001:
-    error_ = 45;
+  case 0b000000010000:
+    error_ = 4;
     break;
-  case 0b111111111000:
-    error_ = 54;
+  case 0b000000110000:
+    error_ = 2;
     break;
-  case 0b111111111100:
-    error_ = 62;
+
+  case 0b000000100000:
+    error_ = 1;
     break;
-  case 0b111111111111:
+  case 0b000001100000:
+    error_ = 0;
+    break;
+  case 0b000001000000:
+    error_ = -1;
+    break;
+
+  case 0b000011000000:
+    error_ = -2;
+    break;
+  case 0b000010000000:
+    error_ = -4;
+    break;
+  case 0b000110000000:
+    error_ = -6;
+    break;
+  case 0b000100000000:
+    error_ = -8;
+    break;
+  case 0b001100000000:
+    error_ = -10;
+    break;
+  case 0b001000000000:
+    error_ = -12;
+    break;
+  case 0b011000000000:
+    error_ = -14;
+    break;
+  case 0b010000000000:
+    error_ = -16;
+    break;
+  case 0b110000000000:
+    error_ = -18;
+    break;
+  case 0b100000000000:
+    error_ = -22;
+    break;
+  case 0b000000000000:
     error_ = 100;
     break;
   }
@@ -636,20 +795,20 @@ float newErrorlineB(bool kondisi)
   int16_t error_ = 0;
   switch (errorline)
   {
-  case 0b0111111111:
-    error_ = -46;
-    break;
-  case 0b0011111111:
-    error_ = -34;
-    break;
-  case 0b0001111111:
-    error_ = -24;
-    break;
-  case 0b0000111111:
+  case 0b011111111111:
     error_ = -16;
     break;
-  case 0b1000011111:
+  case 0b001111111111:
+    error_ = -14;
+    break;
+  case 0b000111111111:
+    error_ = -12;
+    break;
+  case 0b000011111111:
     error_ = -10;
+    break;
+  case 0b100001111111:
+    error_ = -8;
     break;
   case 0b110001111111:
     error_ = -6;
@@ -673,19 +832,19 @@ float newErrorlineB(bool kondisi)
     error_ = 6;
     break;
   case 0b111111100001:
-    error_ = 10;
+    error_ = 8;
     break;
   case 0b111111110000:
-    error_ = 16;
+    error_ = 10;
     break;
   case 0b111111111000:
-    error_ = 24;
+    error_ = 12;
     break;
   case 0b111111111100:
-    error_ = 34;
+    error_ = 14;
     break;
   case 0b111111111110:
-    error_ = 46;
+    error_ = 16;
     break;
   }
   return error_;
@@ -693,8 +852,10 @@ float newErrorlineB(bool kondisi)
 
 bool detectcross(bool sensor, bool warna)
 {
-  int s[2];
+  int s[3];
   bool hasil;
+  bool detectL = false;
+  bool detectR = false;
   if (sensor == ff)
   {
     digitalWrite(EN_F, 0);
@@ -720,7 +881,7 @@ bool detectcross(bool sensor, bool warna)
 
   if (warna == hitam)
   {
-    if (s[0] > 3300 || s[1] > 3300)
+    if (s[0] >= adcrange[0] || s[1] >= adcrange[1])
     {
       hasil = true;
     }
@@ -731,7 +892,71 @@ bool detectcross(bool sensor, bool warna)
   }
   if (warna == putih)
   {
-    if (s[0] < 2000 || s[1] < 2000)
+    if (s[0] <= adcrange[0] || s[1] <= adcrange[1])
+    {
+      hasil = true;
+    }
+    else
+    {
+      hasil = false;
+    }
+  }
+  return hasil;
+}
+
+bool detectCenter(bool sensor, bool warna)
+{
+  int s[4];
+  bool hasil;
+  if (sensor == ff)
+  {
+    digitalWrite(EN_F, 0);
+    digitalWrite(EN_R, 1);
+  }
+  if (sensor == bb)
+  {
+    digitalWrite(EN_F, 1);
+    digitalWrite(EN_R, 0);
+  }
+
+  digitalWrite(sel0, 0);
+  digitalWrite(sel1, 0);
+  digitalWrite(sel2, 0);
+  digitalWrite(sel3, 0);
+  s[0] = analogRead(ADC);
+  // 1000
+  digitalWrite(sel0, 1);
+  digitalWrite(sel1, 0);
+  digitalWrite(sel2, 0);
+  digitalWrite(sel3, 0);
+  s[1] = analogRead(ADC);
+  // 0100
+  digitalWrite(sel0, 0);
+  digitalWrite(sel1, 1);
+  digitalWrite(sel2, 0);
+  digitalWrite(sel3, 0);
+  s[2] = analogRead(ADC);
+  // 1110
+  digitalWrite(sel0, 1);
+  digitalWrite(sel1, 1);
+  digitalWrite(sel2, 1);
+  digitalWrite(sel3, 0);
+  s[3] = analogRead(ADC);
+
+  if (warna == hitam)
+  {
+    if (s[0] > adcrange[0] && s[1] > adcrange[1] && s[2] > adcrange[2] && s[3] > adcrange[3])
+    {
+      hasil = true;
+    }
+    else
+    {
+      hasil = false;
+    }
+  }
+  if (warna == putih)
+  {
+    if (s[0] < adcrange[0] && s[1] < adcrange[1] && s[2] < adcrange[2] && s[3] < adcrange[3])
     {
       hasil = true;
     }
@@ -830,13 +1055,13 @@ float errorF(bool kondisi)
 
   for (int i = 0; i <= 11; i++)
   {
-    if (s[i] >= 3300)
+    if (s[i] >= adcrange[i])
     {
-      hasil_adc[i] = 1;
+      hasil_adc[i] = 0;
     }
     else
     {
-      hasil_adc[i] = 0;
+      hasil_adc[i] = 1;
     }
   }
   caseSensor = ((hasil_adc[11] * 1) + (hasil_adc[10] * 2) + (hasil_adc[9] * 4) + (hasil_adc[8] * 8) + (hasil_adc[7] * 16) + (hasil_adc[6] * 32) + (hasil_adc[5] * 64) + (hasil_adc[4] * 128) + (hasil_adc[3] * 256) + (hasil_adc[2] * 512) + (hasil_adc[1] * 1024) + (hasil_adc[0] * 2048));
@@ -911,12 +1136,12 @@ void motorEnc(int speed, bool arah, int jkanan, int jkiri, int brake)
 
     delay(10);
 
-    if (arah == _maju)
+    if (arah == ff)
     {
       mtrknMj(speed);
       mtrkrMj(speed);
     }
-    if (arah == _mundur)
+    if (arah == bb)
     {
       mtrknMn(speed);
       mtrkrMn(speed);
@@ -930,9 +1155,9 @@ void motorEnc(int speed, bool arah, int jkanan, int jkiri, int brake)
     if (Ckiri == true || Ckanan == true)
     {
       motorBerhenti();
-      if (arah == _maju)
+      if (arah == ff)
         mundurremS(brake);
-      if (arah == _mundur)
+      if (arah == bb)
         majuremS(brake);
       isComplete = true;
     }
@@ -1132,7 +1357,7 @@ void pkiriT(int speed_, int timer)
     if ((unsigned long)millis() - timeStart > timer)
     {
       isTimeout = true;
-      majuspeed(0, 0);
+      motorBerhenti();
     }
   }
 }
@@ -1148,7 +1373,7 @@ void pkananT(int speed_, int timer)
     if ((unsigned long)millis() - timeStart > timer)
     {
       isTimeout = true;
-      majuspeed(0, 0);
+      motorBerhenti();
     }
   }
 }
@@ -1162,7 +1387,7 @@ void majutimer(int Skanan, int Skiri, int timer)
     majuzero(Skanan, Skiri);
     if ((unsigned long)millis() - timeStart > timer)
     {
-      majuzero(0, 0);
+      motorBerhenti();
       isTimeout = true;
     }
   }
@@ -1174,7 +1399,7 @@ void mundurtimer(int Skanan, int Skiri, int timer)
   unsigned long timeStart = millis();
   while (!isTimeout)
   {
-    majuzero(Skanan, Skiri);
+    majuzero(-Skanan, -Skiri);
     if ((unsigned long)millis() - timeStart > timer)
     {
       majuzero(0, 0);
@@ -1209,6 +1434,7 @@ void findCross(int speed, bool sensor, bool warna, int rem)
   if (sensor == bb)
     majuremS(rem);
 }
+
 void linefollower(int Skiri, int Skanan, bool sensor, bool warna)
 {
   float errorB, error, lasterror = 0, sumerror = 0;
@@ -1242,7 +1468,7 @@ void linefollower(int Skiri, int Skanan, bool sensor, bool warna)
 
     P = error * KP;
     D = (error - lasterror) * KD;
-    I = sumerror * KI;
+    I = 0;
     out = P + I + D;
 
     error = lasterror;
@@ -1259,21 +1485,20 @@ void linefollower(int Skiri, int Skanan, bool sensor, bool warna)
     if (speedKa <= -255)
       speedKa = -255;
 
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
     // motor jalan
     if (sensor == ff)
     {
-      if (errorB == 100 || errorB == -100)
-        majuspeed(0, 0);
-      else
-        majuspeed(speedKa, speedKi);
+      majuspeed(speedKa, speedKi);
     }
 
     else if (sensor == bb)
     {
-      if (errorB == 100 || errorB == -100)
-        mundurspeed(0, 0);
-      else
-        mundurspeed(speedKa, speedKi);
+      mundurspeed(speedKa, speedKi);
     }
 
     else
@@ -1310,9 +1535,6 @@ void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna)
         error = newErrorlineW(bb) * -1;
     }
 
-    error = newErrorlineW(ff);
-    detected = detectcross(sensor, warna);
-
     // Serial.println(error);
     // oled.setScale(1);
     // oled.setCursorXY(0, 24);
@@ -1346,12 +1568,18 @@ void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna)
     if (speedKa <= -255)
       speedKa = -255;
 
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
     // motor jalan
     if (sensor == ff)
     {
+      detected = detectcross(ff, putih);
       if (detected)
       {
-        majuspeed(0, 0);
+        motorBerhenti();
         isFind = true;
       }
       else
@@ -1360,23 +1588,106 @@ void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna)
 
     if (sensor == bb)
     {
+      detected = detectcross(bb, putih);
       if (detected)
       {
-        majuspeed(0, 0);
+        motorBerhenti();
         isFind = true;
       }
       else
         majuspeed(speedKa * -1, speedKi * -1);
     }
+  }
+  if (sensor == bb)
+    mundurtimer(Skanan, Skiri, rem);
+  if (sensor == ff)
+    majutimer(Skanan, Skiri, rem);
+}
 
-    else
+void lfDelay(int Skiri, int Skanan, bool sensor, bool warna, int rem, int delay_)
+{
+  float errorBf, error, lasterror = 0, sumerror = 0;
+  float KP = kp, KI = ki, KD = kd;
+  float P, I, D, out;
+  float speedKa, speedKi;
+  bool errorB;
+  unsigned long timeStart = millis();
+
+  bool isCompleted = false;
+  while (!isCompleted)
+  {
+    if (warna == hitam)
     {
-      Serial.println("Else");
+      if (sensor == ff)
+        error = newErrorlineB(ff);
+      if (sensor == bb)
+        error = newErrorlineB(bb) * -1;
+    }
+    if (warna == putih)
+    {
+      if (sensor == ff)
+        error = newErrorlineW(ff);
+      if (sensor == bb)
+        error = newErrorlineW(bb) * -1;
+    }
+
+    errorBf = error;
+
+    if (error != 0)
+      sumerror += error;
+    else
+      sumerror = 0;
+
+    P = error * KP;
+    D = (error - lasterror) * KD;
+    I = sumerror * KI;
+    out = P + I + D;
+
+    error = lasterror;
+
+    speedKi = Skiri + out;
+    speedKa = Skanan - out;
+
+    if (speedKi >= 255)
+      speedKi = 255;
+    if (speedKa >= 255)
+      speedKa = 255;
+    if (speedKi <= -255)
+      speedKi = -255;
+    if (speedKa <= -255)
+      speedKa = -255;
+
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
+    // motor jalan
+    if (sensor == ff)
+    {
+      if ((unsigned long)millis() - timeStart > delay_)
+      {
+        motorBerhenti();
+        isCompleted = true;
+      }
+      else
+        majuspeed(speedKa, speedKi);
+    }
+
+    if (sensor == bb)
+    {
+      if ((unsigned long)millis() - timeStart > delay_)
+      {
+        motorBerhenti();
+        isCompleted = true;
+      }
+      else
+        majuspeed(speedKa * -1, speedKi * -1);
     }
   }
-  if (rem < 0)
-    mundurtimer(Skanan, Skiri, rem * -1);
-  if (rem > 0)
+  if (sensor == bb)
+    mundurtimer(Skanan, Skiri, rem);
+  if (sensor == ff)
     majutimer(Skanan, Skiri, rem);
 }
 
@@ -1433,33 +1744,40 @@ void noLinefind(int Skiri, int Skanan, bool sensor, bool warna, int rem)
     if (speedKa <= 20)
       speedKa = 0;
 
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
     // motor jalan
     if (sensor == ff)
     {
       if (errorB == 100 || errorB == -100)
-        majuspeed(0, 0);
+      {
+        motorBerhenti();
+        isFind = true;
+      }
+
       else
         majuspeed(speedKa, speedKi);
     }
 
-    else if (sensor == bb)
+    if (sensor == bb)
     {
       if (errorB == 100 || errorB == -100)
-        mundurspeed(0, 0);
+      {
+        motorBerhenti();
+        isFind = true;
+      }
       else
         mundurspeed(speedKa, speedKi);
     }
-
-    else
-    {
-      Serial.println("Else");
-    }
   }
-  if (rem < 0)
-    mundurtimer(Skanan, Skiri, rem * -1);
-  if (rem > 0)
+  if (sensor == ff)
+    mundurtimer(Skanan, Skiri, rem);
+  if (sensor == bb)
     majutimer(Skanan, Skiri, rem);
-  majuspeed(0, 0);
+  motorBerhenti();
 }
 
 void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warna)
@@ -1510,7 +1828,7 @@ void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warn
     speedKi = Skiri + out;
     speedKa = Skanan - out;
 
-    if (mtKr >= jarak || mtKn >= jarak)
+    if (mtKr >= jarak)
       isComplete = true;
 
     if (speedKi >= 255)
@@ -1522,6 +1840,11 @@ void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warn
     if (speedKa <= -255)
       speedKa = -255;
 
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
     // motor jalan
     if (sensor == ff)
     {
@@ -1532,56 +1855,60 @@ void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warn
     {
       majuspeed(speedKa * -1, speedKi * -1);
     }
-
-    else
-    {
-      Serial.println("Else");
-    }
   }
-  if (sensor == _maju)
+  if (sensor == ff)
     mundurremS(rem);
-  if (sensor == _mundur)
+  if (sensor == bb)
     majuremS(rem);
+
+  counterKn = 0;
+  counterKr = 0;
+  lastTimeKn = 0;
+  lastTimeKr = 0;
 }
 
-void bkanan(int speed, bool sensor, int rem)
+void bkanan(int speed, bool sensor, int rem, bool warna)
 {
-  float error;
+  bool error;
   bool isFind = false;
+  pkananT(speed, 100);
   while (!isFind)
   {
     if (sensor == ff)
-      error = errorlineB(ff);
+      error = detectCenter(ff, warna);
     if (sensor == bb)
-      error = errorlineB(bb) * -1;
+      error = detectCenter(bb, warna);
+
     pkanan(speed);
-    if (error == 0)
+    if (error)
     {
       pkiriT(speed, rem);
       isFind = true;
     }
   }
-  majuspeed(0, 0);
+  motorBerhenti();
 }
 
-void bkiri(int speed, bool sensor, int rem)
+void bkiri(int speed, bool sensor, int rem, bool warna)
 {
-  float error;
+  bool error;
   bool isFind = false;
+  pkiriT(speed, 100);
   while (!isFind)
   {
     if (sensor == ff)
-      error = errorlineB(ff);
+      error = detectCenter(ff, warna);
     if (sensor == bb)
-      error = errorlineB(bb) * -1;
+      error = detectCenter(bb, warna);
+
     pkiri(speed);
-    if (error == 0)
+    if (error)
     {
       pkananT(speed, rem);
       isFind = true;
     }
   }
-  majuspeed(0, 0);
+  motorBerhenti();
 }
 // <---- Akhir Fungsi Line Follower motor disini --->
 // --------------------------------------------------
