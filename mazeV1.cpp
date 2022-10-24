@@ -115,6 +115,9 @@ void setup()
   // servo
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQ);
+  // motor
+  pinMode(naikPin, OUTPUT);
+  pinMode(turunPin, OUTPUT);
 }
 
 // PID
@@ -127,6 +130,8 @@ void pidvalue(float kp_, float ki_, float kd_)
 
 // <---- Fungsi Servo disini --->
 // --------------------------------------------------
+
+// Servo SMP
 void capitOpen()
 {
   pwm.setPWM(0, 0, 250);
@@ -156,6 +161,66 @@ void lempar()
   pwm.setPWM(2, 0, 100);
   delay(3000);
   pwm.setPWM(2, 0, 0);
+}
+
+// Servo SMA
+void capit_SMA(bool kondisi)
+{
+  if (kondisi)
+  {
+    pwm.setPWM(2, 0, 200);
+    delay(100);
+  }
+  if (!kondisi)
+  {
+    pwm.setPWM(2, 0, 370);
+    delay(100);
+  }
+}
+
+void standBy_SMA()
+{
+  digitalWrite(naikPin, 0);
+  digitalWrite(turunPin, 0);
+}
+
+void picker_SMA(bool kondisi)
+{
+  if (kondisi)
+  {
+    pwm.setPWM(1, 0, 350);
+    delay(100);
+  }
+  if (!kondisi)
+  {
+    pwm.setPWM(1, 0, 175);
+    delay(100);
+  }
+}
+
+void lempar_SMA(int delay_)
+{
+  pwm.setPWM(3, 0, 400);
+  delay(delay_);
+  pwm.setPWM(3, 0, 0);
+}
+
+void updown_SMA(bool kondisi, int levelDelay)
+{
+  if (kondisi)
+  {
+    digitalWrite(naikPin, 1);
+    digitalWrite(turunPin, 0);
+    delay(levelDelay);
+    standBy_SMA();
+  }
+  if (!kondisi)
+  {
+    digitalWrite(naikPin, 0);
+    digitalWrite(turunPin, 1);
+    delay(levelDelay);
+    standBy_SMA();
+  }
 }
 // <---- Akhir Fungsi Servo disini --->
 // --------------------------------------------------
@@ -430,10 +495,16 @@ int errorKhusus(bool kondisi)
   int16_t error_ = 0;
   switch (errorline)
   {
-  case 0b111100000000:
-    error_ = -100;
+  case 0b001111111100:
+    error_ = 100;
     break;
-  case 0b000000001111:
+  case 0b001111111000:
+    error_ = 100;
+    break;
+  case 0b000111111100:
+    error_ = 100;
+    break;
+  case 0b000111111000:
     error_ = 100;
     break;
   }
@@ -1508,6 +1579,97 @@ void linefollower(int Skiri, int Skanan, bool sensor, bool warna)
   }
 }
 
+void linefindEight(int Skiri, int Skanan, bool sensor, int rem, bool warna)
+{
+  float errorBf, error, lasterror = 0, sumerror = 0;
+  float KP = kp, KI = ki, KD = kd;
+  float P, I, D, out;
+  float speedKa, speedKi;
+  bool errorB;
+  int detected = 0;
+
+  bool isFind = false;
+  while (!isFind)
+  {
+    if (warna == hitam)
+    {
+      if (sensor == ff)
+        error = newErrorlineB(ff);
+      if (sensor == bb)
+        error = newErrorlineB(bb) * -1;
+    }
+    if (warna == putih)
+    {
+      if (sensor == ff)
+        error = newErrorlineW(ff);
+      if (sensor == bb)
+        error = newErrorlineW(bb) * -1;
+    }
+
+    errorBf = error;
+
+    if (error != 0)
+      sumerror += error;
+    else
+      sumerror = 0;
+
+    P = error * KP;
+    D = (error - lasterror) * KD;
+    I = sumerror * KI;
+    out = P + I + D;
+
+    error = lasterror;
+
+    speedKi = Skiri + out;
+    speedKa = Skanan - out;
+
+    if (speedKi >= 255)
+      speedKi = 255;
+    if (speedKa >= 255)
+      speedKa = 255;
+    if (speedKi <= -255)
+      speedKi = -255;
+    if (speedKa <= -255)
+      speedKa = -255;
+
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
+    // motor jalan
+    if (sensor == ff)
+    {
+      detected = errorKhusus(ff);
+      if (detected == 100)
+      {
+        motorBerhenti();
+        mundurtimer(Skanan, Skiri, rem);
+        isFind = true;
+      }
+      else
+        majuspeed(speedKa, speedKi);
+    }
+
+    if (sensor == bb)
+    {
+      detected = errorKhusus(bb);
+      if (detected == 100)
+      {
+        motorBerhenti();
+        majutimer(Skanan, Skiri, rem);
+        isFind = true;
+      }
+      else
+        majuspeed(speedKa * -1, speedKi * -1);
+    }
+  }
+  if (sensor == ff)
+    mundurtimer(Skanan, Skiri, rem);
+  if (sensor == bb)
+    majutimer(Skanan, Skiri, rem);
+}
+
 void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna)
 {
   float errorBf, error, lasterror = 0, sumerror = 0;
@@ -1534,13 +1696,6 @@ void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna)
       if (sensor == bb)
         error = newErrorlineW(bb) * -1;
     }
-
-    // Serial.println(error);
-    // oled.setScale(1);
-    // oled.setCursorXY(0, 24);
-    // oled.print("Error = ");
-    // oled.print(error);
-    // oled.update();
 
     errorBf = error;
 
@@ -1865,13 +2020,15 @@ void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warn
   counterKr = 0;
   lastTimeKn = 0;
   lastTimeKr = 0;
+  detachInterrupt(encKr);
+  detachInterrupt(encKn);
 }
 
 void bkanan(int speed, bool sensor, int rem, bool warna)
 {
   bool error;
   bool isFind = false;
-  pkananT(speed, 100);
+  pkananT(speed, 200);
   while (!isFind)
   {
     if (sensor == ff)
@@ -1893,7 +2050,7 @@ void bkiri(int speed, bool sensor, int rem, bool warna)
 {
   bool error;
   bool isFind = false;
-  pkiriT(speed, 100);
+  pkiriT(speed, 200);
   while (!isFind)
   {
     if (sensor == ff)

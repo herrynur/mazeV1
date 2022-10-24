@@ -87,6 +87,7 @@ void mundurtimer(int Skanan, int Skiri, int timer);
 void linefollower(int Skiri, int Skanan, bool sensor, bool warna);
 void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warna);
 void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna);
+void linefindEight(int Skiri, int Skanan, bool sensor, int rem, bool warna);
 void noLinefind(int Skiri, int Skanan, bool sensor, bool warna, int rem);
 void findCross(int speed, bool sensor, bool warna, int rem);
 void lfDelay(int Skiri, int Skanan, bool sensor, bool warna, int rem, int delay_);
@@ -112,20 +113,32 @@ void kalibrasi();
 //pid
 void pidvalue(float kp_, float ki_, float kd_);
 
-//Servo
+//Servo SMP
 #define buka true
 #define tutup false
 
 void servoCapit(bool kondisi);
-
 #define pickup true
 #define pickdown false
-
 void servoPickup();
 void servoPickDown();
-
 void capitOpen();
 void capitClose();
-
 void lempar();
+
+//Servo SMA
+// capit 2
+// lempar 3
+// bola picker 1
+#define naik true
+#define turun false
+void capit_SMA(bool kondisi);
+void updown_SMA(bool kondisi, int levelDelay);
+void picker_SMA(bool kondisi);
+void lempar_SMA(int delay_);
+void standBy_SMA();
+
+#define naikPin 12
+#define turunPin 2
+
 #endif
