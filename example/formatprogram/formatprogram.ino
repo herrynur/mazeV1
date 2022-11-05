@@ -4,6 +4,6 @@ void mazeInit() {
   Serial1.begin(9600);
 }
 
-void loop() {
+void mazeLoop() {
 
 }

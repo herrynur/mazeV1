@@ -51,9 +51,21 @@ uint8_t UpDown = 1;
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
+// huskylens
+int idResult = 0;
+HUSKYLENS huskylens;
+
+// maze loop
+bool flag = false;
+bool start = false;
+bool startBtn = false;
+bool calibrate = false;
+bool calibrateBtn = false;
+
 void setup()
 {
   Serial.begin(115200);
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   EEPROM.begin(14);
   for (int i = 0; i <= 11; i++)
   {
@@ -61,8 +73,6 @@ void setup()
     delay(10);
   }
   oled.init();
-  // pinmode
-  pinMode(led, OUTPUT);
   // adc
   pinMode(ADC, INPUT);
   // multiplexer
@@ -73,7 +83,6 @@ void setup()
   pinMode(EN_F, OUTPUT);
   pinMode(EN_R, OUTPUT);
   pinMode(ADC, INPUT);
-  pinMode(led, OUTPUT);
 
   digitalWrite(sel0, LOW);
   digitalWrite(sel1, LOW);
@@ -81,12 +90,17 @@ void setup()
   digitalWrite(sel3, LOW);
   digitalWrite(EN_F, HIGH);
   digitalWrite(EN_R, HIGH);
+
+  // led
+  pinMode(led, OUTPUT);
   digitalWrite(led, LOW);
+
   // button
   pinMode(btn1, INPUT);
   pinMode(btn2, INPUT);
   pinMode(btn3, INPUT);
   pinMode(btn4, INPUT);
+
   // motor
   pinMode(motorKn1, OUTPUT);
   pinMode(motorKn2, OUTPUT);
@@ -96,6 +110,7 @@ void setup()
   digitalWrite(motorKn1, LOW);
   digitalWrite(motorKn1, LOW);
   digitalWrite(motorKn1, LOW);
+
   // oled
   oled.clear();
   oled.update();
@@ -106,15 +121,18 @@ void setup()
   delay(2000);
   oled.clear();
   oled.update();
+
   // encoder
   pinMode(encKn, INPUT);
   pinMode(encKr, INPUT);
-  pinMode(led, OUTPUT);
+
   // custom init
   mazeInit();
+
   // servo
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQ);
+
   // motor
   pinMode(naikPin, OUTPUT);
   pinMode(turunPin, OUTPUT);
@@ -127,6 +145,74 @@ void pidvalue(float kp_, float ki_, float kd_)
   kd = kd_;
   ki = ki_;
 }
+
+// <----- Fungsi Huskylens Disini ----->
+// ------------------------------------
+
+int resultObject(int delay_)
+{
+  bool isComplete = false;
+  idResult = 0;
+  unsigned long timeStart = millis();
+
+  while (!huskylens.begin(Serial2))
+  {
+    Serial.println(F("Begin failed!"));
+    Serial.println(F("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>Serial 9600)"));
+    Serial.println(F("2.Please recheck the connection."));
+    delay(100);
+  }
+  delay(100);
+  huskylens.writeAlgorithm(ALGORITHM_OBJECT_CLASSIFICATION);
+  while (!isComplete)
+  {
+    huskyRead();
+    if ((unsigned long)millis() - timeStart > delay_)
+    {
+      isComplete = true;
+    }
+  }
+  return idResult;
+}
+
+void huskyRead()
+{
+  if (!huskylens.request())
+    Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
+  else if (!huskylens.isLearned())
+    Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!"));
+  else if (!huskylens.available())
+    Serial.println(F("No block or arrow appears on the screen!"));
+  else
+  {
+    while (huskylens.available())
+    {
+      HUSKYLENSResult result = huskylens.read();
+      printResult(result);
+    }
+  }
+}
+
+void printResult(HUSKYLENSResult result)
+{
+  if (result.command == COMMAND_RETURN_BLOCK)
+  {
+    // Serial.println(String() + F("Block:xCenter=") + result.xCenter + F(",yCenter=") + result.yCenter + F(",width=") + result.width + F(",height=") + result.height + F(",ID=") + result.ID);
+    idResult = result.ID;
+  }
+  else if (result.command == COMMAND_RETURN_ARROW)
+  {
+    // Serial.println(String() + F("Arrow:xOrigin=") + result.xOrigin + F(",yOrigin=") + result.yOrigin + F(",xTarget=") + result.xTarget + F(",yTarget=") + result.yTarget + F(",ID=") + result.ID);
+    idResult = result.ID;
+  }
+  else
+  {
+    Serial.println("Object unknown!");
+  }
+}
+
+// <----- Akhir Fungsi Huskylens Disini ----->
+// -------------------------------------------
 
 // <---- Fungsi Servo disini --->
 // --------------------------------------------------
@@ -227,12 +313,13 @@ void updown_SMA(bool kondisi, int levelDelay)
 
 // <---- Fungsi Pembacaan Button disini --->
 // --------------------------------------------------
-bool _button(int pin)
+bool readButton(uint16_t pin)
 {
-  if (digitalRead(pin) == LOW)
-  {
+  bool read_ = false;
+  if (digitalRead(pin) == HIGH)
     return true;
-  }
+  else
+    return false;
 }
 // <---- Akhir Fungsi Pembacaan Button disini --->
 // --------------------------------------------------
@@ -2068,4 +2155,56 @@ void bkiri(int speed, bool sensor, int rem, bool warna)
   motorBerhenti();
 }
 // <---- Akhir Fungsi Line Follower motor disini --->
+// --------------------------------------------------
+
+// <---- Fungsi utama --->
+// --------------------------------------------------
+
+void ledblink(uint16_t cnt)
+{
+  for (int i = 0; i < cnt; i++)
+  {
+    digitalWrite(led, HIGH);
+    delay(200);
+    digitalWrite(led, LOW);
+    delay(200);
+  }
+}
+
+void loop()
+{
+  motorBerhenti();
+  while (!start)
+  {
+    motorBerhenti();
+    digitalWrite(led, HIGH);
+    startBtn = readButton(btn4);
+    calibrateBtn = readButton(btn1);
+
+    if (startBtn)
+    {
+      digitalWrite(led, LOW);
+      start = true;
+    }
+    else if (calibrateBtn)
+    {
+      calibrate = true;
+      ledblink(3);
+      while (calibrate)
+      {
+        kalibrasi();
+        calibrateBtn = readButton(btn1);
+        if (calibrateBtn)
+        {
+          ledblink(5);
+          calibrate = false;
+        }
+      }
+    }
+  }
+  mazeLoop();
+  start = false;
+}
+
+// <---- Akhir Fungsi utama --->
 // --------------------------------------------------

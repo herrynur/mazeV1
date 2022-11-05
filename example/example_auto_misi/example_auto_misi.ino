@@ -10,20 +10,13 @@ void mazeInit() {
   pid3();
 }
 
-void loop() {
-  if (!flag)
-  {
+void mazeLoop() {
     // Antar Botol
     antarBotol();
     // Ambil bola 1
     ambilBola(1, 260);
     // Ambil bola 2
     ambilBola(2, 600);
-
-    flag = true;
-  }
-  else
-    motorBerhenti();
 }
 
 void antarBotol()

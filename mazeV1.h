@@ -7,11 +7,16 @@
 #include <EEPROM.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include "HUSKYLENS.h"
+
+#define RXD2 16
+#define TXD2 17
+
+#define led 0
 
 #define mazeInit mazeInit
 void mazeInit();
 
-#define led 12
 // Multiplexer
 #define sel0 19
 #define sel1 18
@@ -60,6 +65,9 @@ void readmuxB();
 int errorlineB(bool kondisi);
 int errorlineW(bool kondisi);
 
+// menu flag
+void mazeLoop();
+
 float newErrorlineB(bool kondisi);
 float newErrorlineW(bool kondisi);
 
@@ -97,7 +105,7 @@ void bkanan(int speed, bool sensor, int rem, bool warna);
 void bkiri(int speed, bool sensor, int rem, bool warna);
 void majuremS(int timer_);
 void mundurremS(int timer_);
-bool _button(int pin);
+bool readButton(uint16_t pin);
 void IRAM_ATTR pulseCountKn();
 void IRAM_ATTR pulseCountKr();
 int pulsaKn();
@@ -109,6 +117,7 @@ void belokEnc(int speed, bool arahBelok, int jaraKiri, int jaraKanan);
 void motorBerhenti();
 
 void kalibrasi();
+void ledblink(uint16_t cnt);
 
 //pid
 void pidvalue(float kp_, float ki_, float kd_);
@@ -140,5 +149,11 @@ void standBy_SMA();
 
 #define naikPin 12
 #define turunPin 2
+
+// Huskylens
+void printResult(HUSKYLENSResult result);
+void huskyRead();
+void printResult(HUSKYLENSResult result);
+int resultObject(int delay_);
 
 #endif

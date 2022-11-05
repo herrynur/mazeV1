@@ -12,12 +12,7 @@ void mazeInit() {
   standBy_SMA();
 }
 
-void loop() {
-  //kalibrasi();
-
-  if (!flag)
-  {
-
+void mazeLoop() {
     capit_SMA(buka);
     picker_SMA(naik);
     updown_SMA(naik, tinggi);
@@ -97,14 +92,6 @@ void loop() {
     delay(500);
     lempar_SMA(1000);
     delay(1000);
-
-
-
-
-    flag = 1;
-  }
-  else
-    motorBerhenti();
 }
 
 //  capit_SMA(buka);
