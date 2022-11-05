@@ -8,6 +8,7 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include "HUSKYLENS.h"
+#include "Adafruit_VL53L0X.h"
 
 #define RXD2 16
 #define TXD2 17
@@ -155,5 +156,9 @@ void printResult(HUSKYLENSResult result);
 void huskyRead();
 void printResult(HUSKYLENSResult result);
 int resultObject(int delay_);
+
+// Sensor jarak
+int jarak();
+void findObject(int Skiri, int Skanan, int jarak, int rem);
 
 #endif

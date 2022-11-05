@@ -62,6 +62,9 @@ bool startBtn = false;
 bool calibrate = false;
 bool calibrateBtn = false;
 
+// Sensor jarak
+Adafruit_VL53L0X lox = Adafruit_VL53L0X();
+
 void setup()
 {
   Serial.begin(115200);
@@ -136,6 +139,14 @@ void setup()
   // motor
   pinMode(naikPin, OUTPUT);
   pinMode(turunPin, OUTPUT);
+
+  // Sensor jarak
+  if (!lox.begin())
+  {
+    Serial.println(F("Failed to boot VL53L0X"));
+    while (1)
+      ;
+  }
 }
 
 // PID
@@ -2171,6 +2182,48 @@ void ledblink(uint16_t cnt)
   }
 }
 
+// <---- Fungsi jarak --->
+int jarak()
+{
+  VL53L0X_RangingMeasurementData_t measure;
+  // Serial.print("Reading a measurement... ");
+  int mResult = 0;
+
+  lox.rangingTest(&measure, false);
+
+  if (measure.RangeStatus != 4)
+  {
+    mResult = measure.RangeMilliMeter;
+    // Serial.print("Distance (mm): "); Serial.println(measure.RangeMilliMeter);
+  }
+  else
+  {
+    Serial.println(" out of range ");
+  }
+  return mResult;
+}
+
+void findObject(int Skiri, int Skanan, int _jarak, int rem)
+{
+  int hasil = 0;
+  bool isFind = false;
+  while (!isFind)
+  {
+    hasil = jarak();
+    if (hasil <= _jarak && hasil != 0)
+    {
+      motorBerhenti();
+      isFind = true;
+    }
+    else
+    {
+      majuspeed(Skanan, Skiri);
+    }
+  }
+  motorBerhenti();
+}
+
+// <---- Fungsi utama --->
 void loop()
 {
   motorBerhenti();
