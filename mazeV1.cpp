@@ -2392,7 +2392,6 @@ void loop()
   button2 = readButton(btn2);
   button3 = readButton(btn3);
   button4 = readButton(btn4);
-  buttoncal = calbutton();
 
   if (button1 && !button2 && !button3 && !button4)
     mode = 1;
@@ -2406,7 +2405,7 @@ void loop()
     mode = 5;
   else if (button3 && button4)
     mode = 6;
-  else if (buttoncal)
+  else if (button1 && button4)
     mode = 7;
 
   while (mode != 0)
