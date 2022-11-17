@@ -99,7 +99,7 @@ void linefollower(int Skiri, int Skanan, bool sensor, bool warna);
 void lfEncoder(int Skiri, int Skanan, bool sensor, int jarak, int rem, bool warna);
 void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna);
 void linefindEight(int Skiri, int Skanan, bool sensor, int rem, bool warna);
-void noLinefind(int Skiri, int Skanan, bool sensor, bool warna, int rem);
+void noLinefind(int Skiri, int Skanan, bool sesvensor, bool warna, int rem);
 void findCross(int speed, bool sensor, bool warna, int rem);
 void lfDelay(int Skiri, int Skanan, bool sensor, bool warna, int rem, int delay_);
 void lf_detectobject(int Skiri, int Skanan, bool sensor, bool warna, int rem, int _jarak);

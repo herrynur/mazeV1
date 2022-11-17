@@ -593,16 +593,50 @@ int errorKhusus(bool kondisi)
   int16_t error_ = 0;
   switch (errorline)
   {
-  case 0b001111111100:
+  case 0b111111000000:
     error_ = 100;
     break;
-  case 0b001111111000:
+  case 0b011111100000:
     error_ = 100;
     break;
-  case 0b000111111100:
+  case 0b001111110000:
     error_ = 100;
     break;
   case 0b000111111000:
+    error_ = 100;
+    break;
+  case 0b000011111100:
+    error_ = 100;
+    break;
+  case 0b000001111110:
+    error_ = 100;
+    break;
+  case 0b000000111111:
+    error_ = 100;
+    break;
+
+  case 0b111110000000:
+    error_ = 100;
+    break;
+  case 0b011111000000:
+    error_ = 100;
+    break;
+  case 0b001111100000:
+    error_ = 100;
+    break;
+  case 0b000111110000:
+    error_ = 100;
+    break;
+  case 0b000011111000:
+    error_ = 100;
+    break;
+  case 0b000001111100:
+    error_ = 100;
+    break;
+  case 0b000000111110:
+    error_ = 100;
+    break;
+  case 0b000000011111:
     error_ = 100;
     break;
   }
@@ -1830,7 +1864,7 @@ void lf_detectobject(int Skiri, int Skanan, bool sensor, bool warna, int rem, in
     if (sensor == ff)
     {
       hasil = jarak();
-      if (hasil <= _jarak && hasil !=0)
+      if (hasil <= _jarak && hasil != 0)
       {
         motorBerhenti();
         isFind = true;
@@ -1842,7 +1876,7 @@ void lf_detectobject(int Skiri, int Skanan, bool sensor, bool warna, int rem, in
     if (sensor == bb)
     {
       hasil = jarak();
-      if (hasil <= _jarak && hasil !=0)
+      if (hasil <= _jarak && hasil != 0)
       {
         motorBerhenti();
         isFind = true;
