@@ -121,7 +121,7 @@ void belokEnc(int speed, bool arahBelok, int jaraKiri, int jaraKanan);
 void motorBerhenti();
 
 void kalibrasi();
-void ledblink(uint16_t cnt);
+void ledblink(uint16_t cnt, int delay_);
 
 //pid
 void pidvalue(float kp_, float ki_, float kd_);
