@@ -62,8 +62,17 @@ bool startBtn = false;
 bool calibrate = false;
 bool calibrateBtn = false;
 
+// button
+bool button1 = false;
+bool button2 = false;
+bool button3 = false;
+bool button4 = false;
+
 // Sensor jarak
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
+
+// Mode
+uint16_t mode = 0;
 
 void setup()
 {
@@ -2348,37 +2357,80 @@ void findObject(int Skiri, int Skanan, int _jarak, int rem)
 void loop()
 {
   motorBerhenti();
-  while (!start)
-  {
-    motorBerhenti();
-    digitalWrite(led, HIGH);
-    startBtn = readButton(btn4);
-    calibrateBtn = readButton(btn1);
 
-    if (startBtn)
+  button1 = readButton(btn1);
+  button2 = readButton(btn2);
+  button3 = readButton(btn3);
+  button4 = readButton(btn4);
+
+  if (button1)
+    mode = 1;
+  if (button2)
+    mode = 2;
+  if (button3)
+    mode = 3;
+  if (button4)
+    mode = 4;
+
+  if (mode != 0)
+  {
+    switch (mode)
     {
-      digitalWrite(led, LOW);
-      start = true;
-    }
-    else if (calibrateBtn)
-    {
-      calibrate = true;
-      ledblink(3);
-      while (calibrate)
-      {
-        kalibrasi();
-        calibrateBtn = readButton(btn1);
-        if (calibrateBtn)
-        {
-          ledblink(5);
-          calibrate = false;
-        }
-      }
+    case 1:
+      mode1();
+      mode = 0;
+      break;
+    case 2:
+      mode2();
+      mode = 0;
+      break;
+    case 3:
+      mode3();
+      mode = 0;
+      break;
+    case 4:
+      mode4();
+      mode = 0;
+      break;
     }
   }
-  mazeLoop();
-  start = false;
 }
+
+// OLD LOOP
+// void loop()
+// {
+//   motorBerhenti();
+//   while (!start)
+//   {
+//     motorBerhenti();
+//     digitalWrite(led, HIGH);
+//     startBtn = readButton(btn4);
+//     calibrateBtn = readButton(btn1);
+
+//     if (startBtn)
+//     {
+//       digitalWrite(led, LOW);
+//       start = true;
+//     }
+//     else if (calibrateBtn)
+//     {
+//       calibrate = true;
+//       ledblink(3);
+//       while (calibrate)
+//       {
+//         kalibrasi();
+//         calibrateBtn = readButton(btn1);
+//         if (calibrateBtn)
+//         {
+//           ledblink(5);
+//           calibrate = false;
+//         }
+//       }
+//     }
+//   }
+//   mazeLoop();
+//   start = false;
+// }
 
 // <---- Akhir Fungsi utama --->
 // --------------------------------------------------

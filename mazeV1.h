@@ -164,4 +164,10 @@ int resultObject(int delay_);
 int jarak();
 void findObject(int Skiri, int Skanan, int jarak, int rem);
 
+//Create Mode
+void mode1();
+void mode2();
+void mode3();
+void mode4();
+
 #endif
