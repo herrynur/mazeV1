@@ -2439,8 +2439,9 @@ void loop()
     case 7:
       kalibrasi();
       digitalWrite(led, HIGH);
-      buttoncal = calbutton();
-      if (buttoncal)
+      button1 = readButton(btn1);
+      button4 = readButton(btn4);
+      if (button1 && button4)
       {
         digitalWrite(led, LOW);
         mode = 0;
