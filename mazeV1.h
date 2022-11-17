@@ -169,5 +169,7 @@ void mode1();
 void mode2();
 void mode3();
 void mode4();
+void mode5();
+void mode6();
 
 #endif

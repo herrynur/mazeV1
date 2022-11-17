@@ -2365,12 +2365,16 @@ void loop()
 
   if (button1)
     mode = 1;
-  if (button2)
+  else if (button2)
     mode = 2;
-  if (button3)
+  else if (button3)
     mode = 3;
-  if (button4)
+  else if (button4)
     mode = 4;
+  else if (button1 && button2)
+    mode = 5;
+  else if (button2 && button3)
+    mode = 6;
 
   if (mode != 0)
   {
@@ -2390,6 +2394,14 @@ void loop()
       break;
     case 4:
       mode4();
+      mode = 0;
+      break;
+    case 5:
+      mode5();
+      mode = 0;
+      break;
+    case 6:
+      mode6();
       mode = 0;
       break;
     }
