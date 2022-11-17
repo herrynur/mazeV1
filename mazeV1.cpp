@@ -1768,6 +1768,95 @@ void linefindEight(int Skiri, int Skanan, bool sensor, int rem, bool warna)
     majutimer(Skanan, Skiri, rem);
 }
 
+void lf_detectobject(int Skiri, int Skanan, bool sensor, bool warna, int rem, int _jarak)
+{
+  float errorBf, error, lasterror = 0, sumerror = 0;
+  float KP = kp, KI = ki, KD = kd;
+  float P, I, D, out;
+  float speedKa, speedKi;
+  bool errorB;
+  int hasil = 0;
+
+  bool isFind = false;
+  while (!isFind)
+  {
+    if (warna == hitam)
+    {
+      if (sensor == ff)
+        error = newErrorlineB(ff);
+      if (sensor == bb)
+        error = newErrorlineB(bb) * -1;
+    }
+    if (warna == putih)
+    {
+      if (sensor == ff)
+        error = newErrorlineW(ff);
+      if (sensor == bb)
+        error = newErrorlineW(bb) * -1;
+    }
+
+    errorBf = error;
+
+    if (error != 0)
+      sumerror += error;
+    else
+      sumerror = 0;
+
+    P = error * KP;
+    D = (error - lasterror) * KD;
+    I = sumerror * KI;
+    out = P + I + D;
+
+    error = lasterror;
+
+    speedKi = Skiri + out;
+    speedKa = Skanan - out;
+
+    if (speedKi >= 255)
+      speedKi = 255;
+    if (speedKa >= 255)
+      speedKa = 255;
+    if (speedKi <= -255)
+      speedKi = -255;
+    if (speedKa <= -255)
+      speedKa = -255;
+
+    if (speedKa >= Skanan)
+      speedKa = Skanan;
+    if (speedKi >= Skiri)
+      speedKi = Skiri;
+
+    // motor jalan
+    if (sensor == ff)
+    {
+      hasil = jarak();
+      if (hasil <= _jarak && hasil !=0)
+      {
+        motorBerhenti();
+        isFind = true;
+      }
+      else
+        majuspeed(speedKa, speedKi);
+    }
+
+    if (sensor == bb)
+    {
+      hasil = jarak();
+      if (hasil <= _jarak && hasil !=0)
+      {
+        motorBerhenti();
+        isFind = true;
+      }
+      else
+        majuspeed(speedKa * -1, speedKi * -1);
+    }
+  }
+  if (sensor == bb)
+    mundurtimer(Skanan, Skiri, rem);
+  if (sensor == ff)
+    majutimer(Skanan, Skiri, rem);
+}
+
 void linecrossfind(int Skiri, int Skanan, bool sensor, int rem, bool warna)
 {
   float errorBf, error, lasterror = 0, sumerror = 0;
@@ -2186,7 +2275,6 @@ void ledblink(uint16_t cnt)
 int jarak()
 {
   VL53L0X_RangingMeasurementData_t measure;
-  // Serial.print("Reading a measurement... ");
   int mResult = 0;
 
   lox.rangingTest(&measure, false);
@@ -2194,7 +2282,6 @@ int jarak()
   if (measure.RangeStatus != 4)
   {
     mResult = measure.RangeMilliMeter;
-    // Serial.print("Distance (mm): "); Serial.println(measure.RangeMilliMeter);
   }
   else
   {

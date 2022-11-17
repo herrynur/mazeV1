@@ -85,9 +85,11 @@ void belokiri(int speed_);
 void belokanan(int speed_);
 void pkiri(int speed_);
 void pkanan(int speed_);
+
 void majuspeed(int Skanan, int Skiri);
 void majuzero(int Skanan, int Skiri);
 void mundurspeed(int Skanan, int Skiri);
+
 void pkiriT(int speed_, int timer);
 void pkananT(int speed_, int timer);
 void majutimer(int Skanan, int Skiri, int timer);
@@ -100,6 +102,7 @@ void linefindEight(int Skiri, int Skanan, bool sensor, int rem, bool warna);
 void noLinefind(int Skiri, int Skanan, bool sensor, bool warna, int rem);
 void findCross(int speed, bool sensor, bool warna, int rem);
 void lfDelay(int Skiri, int Skanan, bool sensor, bool warna, int rem, int delay_);
+void lf_detectobject(int Skiri, int Skanan, bool sensor, bool warna, int rem, int _jarak);
 int errorKhusus(bool kondisi);
 
 void bkanan(int speed, bool sensor, int rem, bool warna);
