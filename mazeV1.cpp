@@ -67,6 +67,7 @@ bool button1 = false;
 bool button2 = false;
 bool button3 = false;
 bool button4 = false;
+bool buttoncal = false;
 
 // Sensor jarak
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
@@ -336,8 +337,37 @@ void updown_SMA(bool kondisi, int levelDelay)
 bool readButton(uint16_t pin)
 {
   bool read_ = false;
+  int cnt = 0;
+
   if (digitalRead(pin) == HIGH)
-    return true;
+  {
+    while (digitalRead(pin) == HIGH)
+    {
+      cnt++;
+      delay(10);
+      if (cnt >= 90)
+        return true;
+    }
+  }
+  else
+    return false;
+}
+
+bool calbutton()
+{
+  bool read_ = false;
+  int cnt = 0;
+
+  if (digitalRead(btn1) == HIGH)
+  {
+    while (digitalRead(btn1) == HIGH)
+    {
+      cnt++;
+      delay(10);
+      if (cnt >= 500)
+        return true;
+    }
+  }
   else
     return false;
 }
@@ -2362,21 +2392,24 @@ void loop()
   button2 = readButton(btn2);
   button3 = readButton(btn3);
   button4 = readButton(btn4);
+  buttoncal = calbutton();
 
-  if (button1)
+  if (button1 && !button2 && !button3 && !button4)
     mode = 1;
-  else if (button2)
+  else if (button2 && !button1 && !button3 && !button4)
     mode = 2;
-  else if (button3)
+  else if (button3 && !button1 && !button2 && !button4)
     mode = 3;
-  else if (button4)
+  else if (button4 && !button1 && !button2 && !button3)
     mode = 4;
   else if (button1 && button2)
     mode = 5;
-  else if (button2 && button3)
+  else if (button3 && button4)
     mode = 6;
+  else if (buttoncal)
+    mode = 7;
 
-  if (mode != 0)
+  while (mode != 0)
   {
     switch (mode)
     {
@@ -2403,6 +2436,12 @@ void loop()
     case 6:
       mode6();
       mode = 0;
+      break;
+    case 7:
+      kalibrasi();
+      buttoncal = calbutton();
+      if (buttoncal)
+        mode = 0;
       break;
     }
   }

@@ -172,4 +172,7 @@ void mode4();
 void mode5();
 void mode6();
 
+// calibrate mode
+bool calbutton();
+
 #endif
