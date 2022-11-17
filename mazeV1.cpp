@@ -2333,14 +2333,14 @@ void bkiri(int speed, bool sensor, int rem, bool warna)
 // <---- Fungsi utama --->
 // --------------------------------------------------
 
-void ledblink(uint16_t cnt)
+void ledblink(uint16_t cnt, int delay_)
 {
   for (int i = 0; i < cnt; i++)
   {
     digitalWrite(led, HIGH);
-    delay(200);
+    delay(delay_);
     digitalWrite(led, LOW);
-    delay(200);
+    delay(delay_);
   }
 }
 
@@ -2439,9 +2439,13 @@ void loop()
       break;
     case 7:
       kalibrasi();
+      digitalWrite(led, HIGH);
       buttoncal = calbutton();
       if (buttoncal)
+      {
+        digitalWrite(led, LOW);
         mode = 0;
+      }
       break;
     }
   }
