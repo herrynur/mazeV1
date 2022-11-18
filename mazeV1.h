@@ -184,6 +184,6 @@ void mode12();
 bool calbutton();
 
 // manual mode
-void manualMode(String addr);
+void manualMode(const char* addr);
 
 #endif

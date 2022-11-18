@@ -2386,7 +2386,7 @@ void findObject(int Skiri, int Skanan, int _jarak, int rem)
 }
 
 // <---- Fungsi Manual Mode ---->
-void manualMode(String addr)
+void manualMode(const char* addr)
 {
   Ps3.begin(addr);
   delay(10);
@@ -2397,22 +2397,22 @@ void manualMode(String addr)
 
     if (Ps3.data.button.cross)
     {
-      Serial.println("Pressing the cross button");
+      Serial.println("Pressing the CROSS button");
     }
 
     else if (Ps3.data.button.square)
     {
-      Serial.println("Pressing the square button");
+      Serial.println("Pressing the SQUARE button");
     }
 
     else if (Ps3.data.button.triangle)
     {
-      Serial.println("Pressing the triangle button");
+      Serial.println("Pressing the TRIANGLE button");
     }
 
     else if (Ps3.data.button.circle)
     {
-      Serial.println("Pressing the circle button");
+      Serial.println("Pressing the CIRCLE button");
     }
     else if (Ps3.data.button.l1)
     {
@@ -2429,6 +2429,22 @@ void manualMode(String addr)
     else if (Ps3.data.button.r2)
     {
       Serial.println("Pressing the R2 button");
+    }
+    else if (Ps3.data.button.up)
+    {
+      Serial.println("Pressing the UP button");
+    }
+    else if (Ps3.data.button.down)
+    {
+      Serial.println("Pressing the DOWN button");
+    }
+    else if (Ps3.data.button.right)
+    {
+      Serial.println("Pressing the RIGHT button");
+    }
+    else if (Ps3.data.button.left)
+    {
+      Serial.println("Pressing the LEFT button");
     }
   }
 }
