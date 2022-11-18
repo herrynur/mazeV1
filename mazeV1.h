@@ -185,6 +185,6 @@ void mode12();
 bool calbutton();
 
 // manual mode
-void manualMode(const char* addr, int speedMaju, int speedMundur, int speedBelok);
+void manualMode(const char* addr, int speedMajuKiri, int speedMajuKanan, int speedMundurKiri, int speedMundurKiri, int speedBelok);
 
 #endif

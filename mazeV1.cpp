@@ -2402,95 +2402,82 @@ void findObject(int Skiri, int Skanan, int _jarak, int rem)
 }
 
 // <---- Fungsi Manual Mode ---->
-void manualMode(const char *addr, int speedMaju, int speedMundur, int speedBelok)
+void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int speedMundurKiri, int speedMundurKiri, int speedBelok)
 {
   Ps3.begin(addr);
   delay(10);
   Serial.println("Ready.");
+
+  picker_SMA(naik);
+  capit_SMA(buka);
+  standBy_SMA();
 
   while (Ps3.isConnected())
   {
     if (Ps3.data.button.cross)
     {
       picker_SMA(turun);
-      capit_SMA(buka);
-      standBy_SMA();
     }
     else if (Ps3.data.button.square)
     {
-      lempar_SMA(1000);
-      picker_SMA(naik);
-      capit_SMA(tutup);
-      standBy_SMA();
+      capit_SMA(buka);
     }
     else if (Ps3.data.button.triangle)
     {
+      picker_SMA(turun);
       lempar_SMA(1000);
-      picker_SMA(naik);
-      capit_SMA(tutup);
-      standBy_SMA();
     }
     else if (Ps3.data.button.circle)
     {
-      picker_SMA(turun);
       capit_SMA(tutup);
-      standBy_SMA();
     }
     else if (Ps3.data.button.l1)
     {
-      updown_SMA_1(naik);
-      picker_SMA(naik);
-      capit_SMA(buka);
+      majuspeed(speedMajuKanan / 3, speedMajuKiri / 3)
     }
     else if (Ps3.data.button.l2)
     {
-      updown_SMA_1(turun);
-      picker_SMA(naik);
-      capit_SMA(buka);
+      majuspeed((speedMundurKanan * -1) / 3, (speedMundurKiri * -1 / 3))
     }
     else if (Ps3.data.button.r1)
     {
-      majuspeed(speedMundur * -1, speedMundur * -1);
+      if (Ps3.data.button.left)
+        majuspeed(speedMajuKanan, speedMajuKiri / 2);
+      else if (Ps3.data.button.right)
+        majuspeed(speedMajuKanan / 2, speedMajuKiri);
+      else
+        majuspeed(speedMajuKanan, speedMajuKiri);
     }
     else if (Ps3.data.button.r2)
     {
-      // Serial.println("Pressing the R2 button");
-      majuspeed(speedMaju, speedMaju);
+      if (Ps3.data.button.left)
+        majuspeed(speedMundurKanan * -1, (speedMundurKanan * -1) / 2);
+      else if (Ps3.data.button.right)
+        majuspeed((speedMundurKanan * -1) / 2, speedMundurKanan * -1);
+      else
+        majuspeed(speedMundurKanan * -1, speedMundurKiri * -1)
     }
 
     // Program maju mundur belok
     else if (Ps3.data.button.up)
     {
-      majuspeed(speedMaju, speedMaju);
-      picker_SMA(naik);
-      capit_SMA(buka);
-      standBy_SMA();
+      majuspeed(speedMajuKanan, speedMajuKiri);
     }
     else if (Ps3.data.button.down)
     {
-      majuspeed(speedMundur * -1, speedMundur * -1);
-      picker_SMA(naik);
-      capit_SMA(tutup);
-      standBy_SMA();
+      majuspeed(speedMundurKanan * -1, speedMundurKiri * -1)
     }
     else if (Ps3.data.button.right)
     {
-      majuspeed(speedBelok * -1, speedBelok);
-      picker_SMA(naik);
-      capit_SMA(buka);
-      standBy_SMA();
+      majuspeed(speedMajuKanan / 2, speedMajuKiri);
     }
     else if (Ps3.data.button.left)
     {
-      majuspeed(speedBelok, speedBelok * -1);
-      picker_SMA(naik);
-      capit_SMA(buka);
-      standBy_SMA();
+      majuspeed(speedMundurKanan * -1, (speedMundurKanan * -1) / 2);
     }
     else
     {
       picker_SMA(naik);
-      capit_SMA(buka);
       standBy_SMA();
       motorBerhenti();
     }
