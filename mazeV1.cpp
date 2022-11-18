@@ -74,6 +74,8 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
 // Mode
 uint16_t mode = 0;
+bool modeKanan = false;
+bool modeKiri = false;
 
 void setup()
 {
@@ -2387,29 +2389,43 @@ void findObject(int Skiri, int Skanan, int _jarak, int rem)
 void loop()
 {
   motorBerhenti();
-
   button1 = readButton(btn1);
-  button2 = readButton(btn2);
-  button3 = readButton(btn3);
   button4 = readButton(btn4);
 
-  if (button1 && !button2 && !button3 && !button4)
-    mode = 1;
-  else if (button2 && !button1 && !button3 && !button4)
-    mode = 2;
-  else if (button3 && !button1 && !button2 && !button4)
-    mode = 3;
-  else if (button4 && !button1 && !button2 && !button3)
-    mode = 4;
-  else if (button1 && button2)
-    mode = 5;
-  else if (button3 && button4)
-    mode = 6;
-  else if (button1 && button4)
-    mode = 7;
-
-  while (mode != 0)
+  if (button1)
   {
+    capit_SMA(buka);
+    modeKanan = true;
+  }
+
+  else if (button4)
+  {
+    capit_SMA(tutup);
+    modeKiri = true;
+  }
+
+  while (modeKanan)
+  {
+    button1 = readButton(btn1);
+    button2 = readButton(btn2);
+    button3 = readButton(btn3);
+    button4 = readButton(btn4);
+
+    if (button1 && !button2 && !button3 && !button4)
+      mode = 1;
+    else if (button2 && !button1 && !button3 && !button4)
+      mode = 2;
+    else if (button3 && !button1 && !button2 && !button4)
+      mode = 3;
+    else if (button4 && !button1 && !button2 && !button3)
+      mode = 4;
+    else if (button1 && button2)
+      mode = 5;
+    else if (button3 && button4)
+      mode = 6;
+    else if (button1 && button4)
+      mode = 7;
+
     switch (mode)
     {
     case 1:
@@ -2434,6 +2450,68 @@ void loop()
       break;
     case 6:
       mode6();
+      mode = 0;
+      break;
+    case 7:
+      kalibrasi();
+      digitalWrite(led, HIGH);
+      button1 = readButton(btn1);
+      button4 = readButton(btn4);
+      if (button1 && button4)
+      {
+        digitalWrite(led, LOW);
+        mode = 0;
+      }
+      break;
+    }
+  }
+
+  while (modeKiri)
+  {
+    button1 = readButton(btn1);
+    button2 = readButton(btn2);
+    button3 = readButton(btn3);
+    button4 = readButton(btn4);
+
+    if (button1 && !button2 && !button3 && !button4)
+      mode = 1;
+    else if (button2 && !button1 && !button3 && !button4)
+      mode = 2;
+    else if (button3 && !button1 && !button2 && !button4)
+      mode = 3;
+    else if (button4 && !button1 && !button2 && !button3)
+      mode = 4;
+    else if (button1 && button2)
+      mode = 5;
+    else if (button3 && button4)
+      mode = 6;
+    else if (button1 && button4)
+      mode = 7;
+
+    switch (mode)
+    {
+    case 1:
+      mode7();
+      mode = 0;
+      break;
+    case 2:
+      mode8();
+      mode = 0;
+      break;
+    case 3:
+      mode9();
+      mode = 0;
+      break;
+    case 4:
+      mode10();
+      mode = 0;
+      break;
+    case 5:
+      mode11();
+      mode = 0;
+      break;
+    case 6:
+      mode12();
       mode = 0;
       break;
     case 7:

@@ -172,6 +172,13 @@ void mode4();
 void mode5();
 void mode6();
 
+void mode7();
+void mode8();
+void mode9();
+void mode10();
+void mode11();
+void mode12();
+
 // calibrate mode
 bool calbutton();
 
