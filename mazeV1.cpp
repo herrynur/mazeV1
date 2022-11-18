@@ -2455,7 +2455,7 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
       else if (Ps3.data.button.right)
         majuspeed((speedMundurKanan * -1) / 2, speedMundurKanan * -1);
       else
-        majuspeed(speedMundurKanan * -1, speedMundurKiri * -1)
+        majuspeed(speedMundurKanan * -1, speedMundurKiri * -1);
     }
 
     // Program maju mundur belok
