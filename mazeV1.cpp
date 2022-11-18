@@ -2402,7 +2402,7 @@ void findObject(int Skiri, int Skanan, int _jarak, int rem)
 }
 
 // <---- Fungsi Manual Mode ---->
-void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int speedMundurKiri, int speedMundurKiri, int speedBelok)
+void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int speedMundurKiri, int speedMundurKanan, int speedBelok)
 {
   Ps3.begin(addr);
   delay(10);
