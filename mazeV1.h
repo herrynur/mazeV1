@@ -148,6 +148,7 @@ void lempar();
 #define turun false
 void capit_SMA(bool kondisi);
 void updown_SMA(bool kondisi, int levelDelay);
+void updown_SMA_1(bool kondisi);
 void picker_SMA(bool kondisi);
 void lempar_SMA(int delay_);
 void standBy_SMA();

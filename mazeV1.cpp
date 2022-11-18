@@ -2410,7 +2410,6 @@ void manualMode(const char *addr, int speedMaju, int speedMundur, int speedBelok
 
   while (Ps3.isConnected())
   {
-
     if (Ps3.data.button.cross)
     {
       picker_SMA(turun);
