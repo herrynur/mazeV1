@@ -331,6 +331,22 @@ void updown_SMA(bool kondisi, int levelDelay)
     standBy_SMA();
   }
 }
+
+void updown_SMA_1(bool kondisi)
+{
+  if (kondisi)
+  {
+    digitalWrite(naikPin, 1);
+    digitalWrite(turunPin, 0);
+    standBy_SMA();
+  }
+  if (!kondisi)
+  {
+    digitalWrite(naikPin, 0);
+    digitalWrite(turunPin, 1);
+    standBy_SMA();
+  }
+}
 // <---- Akhir Fungsi Servo disini --->
 // --------------------------------------------------
 
@@ -2397,83 +2413,88 @@ void manualMode(const char *addr, int speedMaju, int speedMundur, int speedBelok
 
     if (Ps3.data.button.cross)
     {
-      Serial.println("Pressing the CROSS button");
+      picker_SMA(turun);
+      capit_SMA(buka);
+      standBy_SMA();
     }
-
     else if (Ps3.data.button.square)
     {
-      Serial.println("Pressing the SQUARE button");
+      lempar_SMA(1000);
+      picker_SMA(naik);
+      capit_SMA(tutup);
+      standBy_SMA();
     }
-
     else if (Ps3.data.button.triangle)
     {
-      Serial.println("Pressing the TRIANGLE button");
+      lempar_SMA(1000);
+      picker_SMA(naik);
+      capit_SMA(tutup);
+      standBy_SMA();
     }
-
     else if (Ps3.data.button.circle)
     {
-      Serial.println("Pressing the CIRCLE button");
+      picker_SMA(turun);
+      capit_SMA(tutup);
+      standBy_SMA();
     }
     else if (Ps3.data.button.l1)
     {
-      Serial.println("Pressing the L1 button");
+      updown_SMA_1(naik);
+      picker_SMA(naik);
+      capit_SMA(buka);
     }
     else if (Ps3.data.button.l2)
     {
-      // Serial.println("Pressing the L2 button");
-      majuspeed(speedMundur * -1, speedMundur * -1);
-    }
-    else if (Ps3.data.button.l2 && Ps3.data.button.left)
-    {
-      // Serial.println("Pressing the L2 button");
-      majuspeed(speedMundur * -1, (speedMundur * -1) / 2);
-    }
-    else if (Ps3.data.button.l2 && Ps3.data.button.right)
-    {
-      // Serial.println("Pressing the L2 button");
-      majuspeed((speedMundur * -1) / 2, speedMundur * -1);
+      updown_SMA_1(turun);
+      picker_SMA(naik);
+      capit_SMA(buka);
     }
     else if (Ps3.data.button.r1)
     {
-      Serial.println("Pressing the R1 button");
+      majuspeed(speedMundur * -1, speedMundur * -1);
     }
     else if (Ps3.data.button.r2)
     {
       // Serial.println("Pressing the R2 button");
       majuspeed(speedMaju, speedMaju);
     }
-    else if (Ps3.data.button.r2 && Ps3.data.button.right)
-    {
-      // Serial.println("Pressing the R2 button");
-      majuspeed(speedMaju / 2, speedMaju);
-    }
-    else if (Ps3.data.button.r2 && Ps3.data.button.left)
-    {
-      // Serial.println("Pressing the R2 button");
-      majuspeed(speedMaju, speedMaju / 2);
-    }
+
+    // Program maju mundur belok
     else if (Ps3.data.button.up)
     {
-      // Serial.println("Pressing the UP button");
       majuspeed(speedMaju, speedMaju);
+      picker_SMA(naik);
+      capit_SMA(buka);
+      standBy_SMA();
     }
     else if (Ps3.data.button.down)
     {
-      // Serial.println("Pressing the DOWN button");
       majuspeed(speedMundur * -1, speedMundur * -1);
+      picker_SMA(naik);
+      capit_SMA(tutup);
+      standBy_SMA();
     }
     else if (Ps3.data.button.right)
     {
-      // Serial.println("Pressing the RIGHT button");
       majuspeed(speedBelok * -1, speedBelok);
+      picker_SMA(naik);
+      capit_SMA(buka);
+      standBy_SMA();
     }
     else if (Ps3.data.button.left)
     {
-      // Serial.println("Pressing the LEFT button");
       majuspeed(speedBelok, speedBelok * -1);
+      picker_SMA(naik);
+      capit_SMA(buka);
+      standBy_SMA();
     }
     else
+    {
+      picker_SMA(naik);
+      capit_SMA(buka);
+      standBy_SMA();
       motorBerhenti();
+    }
   }
 }
 // <---- Fungsi utama --->
