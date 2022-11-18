@@ -9,6 +9,7 @@
 #include <Adafruit_PWMServoDriver.h>
 #include "HUSKYLENS.h"
 #include "Adafruit_VL53L0X.h"
+#include "Ps3Controller.h"
 
 #define RXD2 16
 #define TXD2 17
@@ -181,5 +182,8 @@ void mode12();
 
 // calibrate mode
 bool calbutton();
+
+// manual mode
+void manualMode(String addr);
 
 #endif

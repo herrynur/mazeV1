@@ -2385,6 +2385,53 @@ void findObject(int Skiri, int Skanan, int _jarak, int rem)
   motorBerhenti();
 }
 
+// <---- Fungsi Manual Mode ---->
+void manualMode(String addr)
+{
+  Ps3.begin(addr);
+  delay(10);
+  Serial.println("Ready.");
+
+  while (Ps3.isConnected())
+  {
+
+    if (Ps3.data.button.cross)
+    {
+      Serial.println("Pressing the cross button");
+    }
+
+    else if (Ps3.data.button.square)
+    {
+      Serial.println("Pressing the square button");
+    }
+
+    else if (Ps3.data.button.triangle)
+    {
+      Serial.println("Pressing the triangle button");
+    }
+
+    else if (Ps3.data.button.circle)
+    {
+      Serial.println("Pressing the circle button");
+    }
+    else if (Ps3.data.button.l1)
+    {
+      Serial.println("Pressing the L1 button");
+    }
+    else if (Ps3.data.button.l2)
+    {
+      Serial.println("Pressing the L2 button");
+    }
+    else if (Ps3.data.button.r1)
+    {
+      Serial.println("Pressing the R1 button");
+    }
+    else if (Ps3.data.button.r2)
+    {
+      Serial.println("Pressing the R2 button");
+    }
+  }
+}
 // <---- Fungsi utama --->
 void loop()
 {
