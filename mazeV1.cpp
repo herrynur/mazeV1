@@ -2465,7 +2465,7 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
     }
     else if (Ps3.data.button.down)
     {
-      majuspeed(speedMundurKanan * -1, speedMundurKiri * -1)
+      majuspeed(speedMundurKanan * -1, speedMundurKiri * -1);
     }
     else if (Ps3.data.button.right)
     {
