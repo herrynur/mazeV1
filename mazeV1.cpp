@@ -2473,11 +2473,11 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
       }
       else if (Ps3.data.button.right)
       {
-        majuspeed(speedMajuKanan * -1, speedMajuKiri);
+        majuspeed(speedBelok * -1, speedBelok);
       }
       else if (Ps3.data.button.left)
       {
-        majuspeed(speedMundurKanan, speedMundurKanan * -1);
+        majuspeed(speedBelok, speedBelok * -1);
       }
       else
       {
