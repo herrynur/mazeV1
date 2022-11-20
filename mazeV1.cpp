@@ -153,12 +153,14 @@ void setup()
   pinMode(turunPin, OUTPUT);
 
   // Sensor jarak
-  if (!lox.begin())
-  {
-    Serial.println(F("Failed to boot VL53L0X"));
-    while (1)
-      ;
-  }
+  // if (!lox.begin())
+  // {
+  //   Serial.println(F("Failed to boot VL53L0X"));
+  //   while (1)
+  //     ;
+  // }
+
+  pwm.setPWM(2, 0, 0);
 }
 
 // PID
@@ -291,6 +293,15 @@ void standBy_SMA()
 {
   digitalWrite(naikPin, 0);
   digitalWrite(turunPin, 0);
+}
+
+void nolAll()
+{
+  digitalWrite(naikPin, 0);
+  digitalWrite(turunPin, 0);
+  picker_SMA(buka);
+  pwm.setPWM(3, 0, 0);
+  
 }
 
 void picker_SMA(bool kondisi)
@@ -2497,12 +2508,14 @@ void loop()
 
   if (button1)
   {
+    Serial.println("mode kanan");
     capit_SMA(buka);
     modeKanan = true;
   }
 
   else if (button4)
   {
+    Serial.println("mode kanan");
     capit_SMA(tutup);
     modeKiri = true;
   }

@@ -106,6 +106,8 @@ void lfDelay(int Skiri, int Skanan, bool sensor, bool warna, int rem, int delay_
 void lf_detectobject(int Skiri, int Skanan, bool sensor, bool warna, int rem, int _jarak);
 int errorKhusus(bool kondisi);
 
+void nolAll();
+
 void bkanan(int speed, bool sensor, int rem, bool warna);
 void bkiri(int speed, bool sensor, int rem, bool warna);
 void majuremS(int timer_);
