@@ -1,6 +1,16 @@
 # mazeV1
 Program maze solving GR
 
+MAC Address joystick 
+
+MAC Address 1 => "c0:38:96:af:88:5c" => MAN 1 Pasuruan
+MAC Address 2 => "c0:38:96:c8:44:ee" => MAN Gresik
+MAC Address 3 => "2c:81:58:a1:a1:07" => MAN Tulungagung
+
+format penulisan
+const char * alamat = "c0:38:96:af:88:5c";
+
+
 #Library yang dibutuhkan
 1. <GyverOLED.h>
 2. <analogWrite.h>
