@@ -661,52 +661,27 @@ int errorKhusus(bool kondisi)
   int16_t error_ = 0;
   switch (errorline)
   {
-  case 0b111111000000:
-    error_ = 100;
-    break;
-  case 0b011111100000:
-    error_ = 100;
-    break;
-  case 0b001111110000:
-    error_ = 100;
-    break;
-  case 0b000111111000:
-    error_ = 100;
-    break;
-  case 0b000011111100:
-    error_ = 100;
-    break;
-  case 0b000001111110:
-    error_ = 100;
-    break;
-  case 0b000000111111:
-    error_ = 100;
-    break;
+  // 6 garis
+  case 0b111111000000:  error_ = 100;   break;
+  case 0b011111100000:  error_ = 100;   break;
+  case 0b001111110000:  error_ = 100;   break;
+  case 0b000111111000:  error_ = 100;   break;
+  case 0b000011111100:  error_ = 100;   break;
+  case 0b000001111110:  error_ = 100;   break;
+  case 0b000000111111:  error_ = 100;   break;
 
-  case 0b111110000000:
-    error_ = 100;
-    break;
-  case 0b011111000000:
-    error_ = 100;
-    break;
-  case 0b001111100000:
-    error_ = 100;
-    break;
-  case 0b000111110000:
-    error_ = 100;
-    break;
-  case 0b000011111000:
-    error_ = 100;
-    break;
-  case 0b000001111100:
-    error_ = 100;
-    break;
-  case 0b000000111110:
-    error_ = 100;
-    break;
-  case 0b000000011111:
-    error_ = 100;
-    break;
+  // 5 garis
+  case 0b111110000000:  error_ = 100;   break;
+  case 0b011111000000:  error_ = 100;   break;
+  case 0b001111100000:  error_ = 100;   break;
+  case 0b000111110000:  error_ = 100;   break;
+  case 0b000011111000:  error_ = 100;   break;
+  case 0b000001111100:  error_ = 100;   break;
+  case 0b000000111110:  error_ = 100;   break;
+  case 0b000000011111:  error_ = 100;   break;
+
+  //4 garis
+  case 0b000000001111:  error_ = 100;   break;
   }
   return error_;
 }
@@ -2370,6 +2345,17 @@ void ledblink(uint16_t cnt, int delay_)
     delay(delay_);
     digitalWrite(led, LOW);
     delay(delay_);
+  }
+}
+
+void servoblink(uint16_t cnt)
+{
+  for (int i = 0; i < cnt; i++)
+  {
+    capit_SMA(buka);
+    delay(400);
+    capit_SMA(tutup);
+    delay(400);
   }
 }
 

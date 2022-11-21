@@ -188,5 +188,6 @@ bool calbutton();
 
 // manual mode
 void manualMode(const char* addr, int speedMajuKiri, int speedMajuKanan, int speedMundurKiri, int speedMundurKanan, int speedBelok);
+void servoblink(uint16_t cnt);
 
 #endif
