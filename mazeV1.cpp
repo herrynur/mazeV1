@@ -1191,7 +1191,9 @@ bool detectCenter(bool sensor, bool warna)
 
   if (warna == hitam)
   {
-    if (s[0] > adcrange[0] && s[1] > adcrange[1] && s[2] > adcrange[2] && s[3] > adcrange[3])
+    // old
+    //if (s[0] > adcrange[0] && s[1] > adcrange[1] && s[2] > adcrange[2] && s[3] > adcrange[3])
+    if (s[0] > adcrange[0] && s[1] > adcrange[1] && s[2] > adcrange[2])
     {
       hasil = true;
     }
@@ -1202,7 +1204,9 @@ bool detectCenter(bool sensor, bool warna)
   }
   if (warna == putih)
   {
-    if (s[0] < adcrange[0] && s[1] < adcrange[1] && s[2] < adcrange[2] && s[3] < adcrange[3])
+    // old
+    // if (s[0] < adcrange[0] && s[1] < adcrange[1] && s[2] < adcrange[2] && s[3] < adcrange[3])
+    if (s[0] < adcrange[0] && s[1] < adcrange[1] && s[2] < adcrange[2])
     {
       hasil = true;
     }
