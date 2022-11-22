@@ -2425,7 +2425,7 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
       }
       else if (Ps3.data.button.square)
       {
-        capit_SMA(buka);
+        picker_SMA(turun);
       }
       else if (Ps3.data.button.triangle)
       {
@@ -2434,7 +2434,7 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
       }
       else if (Ps3.data.button.circle)
       {
-        capit_SMA(tutup);
+        picker_SMA(naik);
       }
       else if (Ps3.data.button.l1)
       {
@@ -2482,7 +2482,7 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
       }
       else
       {
-        picker_SMA(naik);
+        //picker_SMA(naik);
         standBy_SMA();
         motorBerhenti();
       }
