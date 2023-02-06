@@ -1688,7 +1688,6 @@ void findCross(int speed, bool sensor, bool warna, int rem)
 void linefollower(int Skiri, int Skanan, bool sensor, bool warna)
 {
   float errorB, error, lasterror = 0, sumerror = 0;
-  // float KP = 0.038, KI = 0.0, KD = 3.00;
   float KP = kp, KI = ki, KD = kd;
   float P, I, D, out;
   float speedKa, speedKi;
@@ -1718,7 +1717,7 @@ void linefollower(int Skiri, int Skanan, bool sensor, bool warna)
 
     P = error * KP;
     D = (error - lasterror) * KD;
-    I = 0;
+    I = sumerror * KI;
     out = P + I + D;
 
     error = lasterror;
@@ -2489,187 +2488,188 @@ void manualMode(const char *addr, int speedMajuKiri, int speedMajuKanan, int spe
     }
   }
 }
+
 // <---- Fungsi utama --->
-void loop()
-{
-  motorBerhenti();
-  button1 = readButton(btn1);
-  button4 = readButton(btn4);
-
-  if (button1)
-  {
-    Serial.println("mode kanan");
-    capit_SMA(buka);
-    modeKanan = true;
-  }
-
-  else if (button4)
-  {
-    Serial.println("mode kanan");
-    capit_SMA(tutup);
-    modeKiri = true;
-  }
-
-  while (modeKanan)
-  {
-    button1 = readButton(btn1);
-    button2 = readButton(btn2);
-    button3 = readButton(btn3);
-    button4 = readButton(btn4);
-
-    if (button1 && !button2 && !button3 && !button4)
-      mode = 1;
-    else if (button2 && !button1 && !button3 && !button4)
-      mode = 2;
-    else if (button3 && !button1 && !button2 && !button4)
-      mode = 3;
-    else if (button4 && !button1 && !button2 && !button3)
-      mode = 4;
-    else if (button1 && button2)
-      mode = 5;
-    else if (button3 && button4)
-      mode = 6;
-    else if (button1 && button4)
-      mode = 7;
-
-    switch (mode)
-    {
-    case 1:
-      mode1();
-      mode = 0;
-      break;
-    case 2:
-      mode2();
-      mode = 0;
-      break;
-    case 3:
-      mode3();
-      mode = 0;
-      break;
-    case 4:
-      mode4();
-      mode = 0;
-      break;
-    case 5:
-      mode5();
-      mode = 0;
-      break;
-    case 6:
-      mode6();
-      mode = 0;
-      break;
-    case 7:
-      kalibrasi();
-      digitalWrite(led, HIGH);
-      button1 = readButton(btn1);
-      button4 = readButton(btn4);
-      if (button1 && button4)
-      {
-        digitalWrite(led, LOW);
-        mode = 0;
-      }
-      break;
-    }
-  }
-
-  while (modeKiri)
-  {
-    button1 = readButton(btn1);
-    button2 = readButton(btn2);
-    button3 = readButton(btn3);
-    button4 = readButton(btn4);
-
-    if (button1 && !button2 && !button3 && !button4)
-      mode = 1;
-    else if (button2 && !button1 && !button3 && !button4)
-      mode = 2;
-    else if (button3 && !button1 && !button2 && !button4)
-      mode = 3;
-    else if (button4 && !button1 && !button2 && !button3)
-      mode = 4;
-    else if (button1 && button2)
-      mode = 5;
-    else if (button3 && button4)
-      mode = 6;
-    else if (button1 && button4)
-      mode = 7;
-
-    switch (mode)
-    {
-    case 1:
-      mode7();
-      mode = 0;
-      break;
-    case 2:
-      mode8();
-      mode = 0;
-      break;
-    case 3:
-      mode9();
-      mode = 0;
-      break;
-    case 4:
-      mode10();
-      mode = 0;
-      break;
-    case 5:
-      mode11();
-      mode = 0;
-      break;
-    case 6:
-      mode12();
-      mode = 0;
-      break;
-    case 7:
-      kalibrasi();
-      digitalWrite(led, HIGH);
-      button1 = readButton(btn1);
-      button4 = readButton(btn4);
-      if (button1 && button4)
-      {
-        digitalWrite(led, LOW);
-        mode = 0;
-      }
-      break;
-    }
-  }
-}
-
-// OLD LOOP
 // void loop()
 // {
 //   motorBerhenti();
-//   while (!start)
-//   {
-//     motorBerhenti();
-//     digitalWrite(led, HIGH);
-//     startBtn = readButton(btn4);
-//     calibrateBtn = readButton(btn1);
+//   button1 = readButton(btn1);
+//   button4 = readButton(btn4);
 
-//     if (startBtn)
+//   if (button1)
+//   {
+//     Serial.println("mode kanan");
+//     capit_SMA(buka);
+//     modeKanan = true;
+//   }
+
+//   else if (button4)
+//   {
+//     Serial.println("mode kanan");
+//     capit_SMA(tutup);
+//     modeKiri = true;
+//   }
+
+//   while (modeKanan)
+//   {
+//     button1 = readButton(btn1);
+//     button2 = readButton(btn2);
+//     button3 = readButton(btn3);
+//     button4 = readButton(btn4);
+
+//     if (button1 && !button2 && !button3 && !button4)
+//       mode = 1;
+//     else if (button2 && !button1 && !button3 && !button4)
+//       mode = 2;
+//     else if (button3 && !button1 && !button2 && !button4)
+//       mode = 3;
+//     else if (button4 && !button1 && !button2 && !button3)
+//       mode = 4;
+//     else if (button1 && button2)
+//       mode = 5;
+//     else if (button3 && button4)
+//       mode = 6;
+//     else if (button1 && button4)
+//       mode = 7;
+
+//     switch (mode)
 //     {
-//       digitalWrite(led, LOW);
-//       start = true;
-//     }
-//     else if (calibrateBtn)
-//     {
-//       calibrate = true;
-//       ledblink(3);
-//       while (calibrate)
+//     case 1:
+//       mode1();
+//       mode = 0;
+//       break;
+//     case 2:
+//       mode2();
+//       mode = 0;
+//       break;
+//     case 3:
+//       mode3();
+//       mode = 0;
+//       break;
+//     case 4:
+//       mode4();
+//       mode = 0;
+//       break;
+//     case 5:
+//       mode5();
+//       mode = 0;
+//       break;
+//     case 6:
+//       mode6();
+//       mode = 0;
+//       break;
+//     case 7:
+//       kalibrasi();
+//       digitalWrite(led, HIGH);
+//       button1 = readButton(btn1);
+//       button4 = readButton(btn4);
+//       if (button1 && button4)
 //       {
-//         kalibrasi();
-//         calibrateBtn = readButton(btn1);
-//         if (calibrateBtn)
-//         {
-//           ledblink(5);
-//           calibrate = false;
-//         }
+//         digitalWrite(led, LOW);
+//         mode = 0;
 //       }
+//       break;
 //     }
 //   }
-//   mazeLoop();
-//   start = false;
+
+//   while (modeKiri)
+//   {
+//     button1 = readButton(btn1);
+//     button2 = readButton(btn2);
+//     button3 = readButton(btn3);
+//     button4 = readButton(btn4);
+
+//     if (button1 && !button2 && !button3 && !button4)
+//       mode = 1;
+//     else if (button2 && !button1 && !button3 && !button4)
+//       mode = 2;
+//     else if (button3 && !button1 && !button2 && !button4)
+//       mode = 3;
+//     else if (button4 && !button1 && !button2 && !button3)
+//       mode = 4;
+//     else if (button1 && button2)
+//       mode = 5;
+//     else if (button3 && button4)
+//       mode = 6;
+//     else if (button1 && button4)
+//       mode = 7;
+
+//     switch (mode)
+//     {
+//     case 1:
+//       mode7();
+//       mode = 0;
+//       break;
+//     case 2:
+//       mode8();
+//       mode = 0;
+//       break;
+//     case 3:
+//       mode9();
+//       mode = 0;
+//       break;
+//     case 4:
+//       mode10();
+//       mode = 0;
+//       break;
+//     case 5:
+//       mode11();
+//       mode = 0;
+//       break;
+//     case 6:
+//       mode12();
+//       mode = 0;
+//       break;
+//     case 7:
+//       kalibrasi();
+//       digitalWrite(led, HIGH);
+//       button1 = readButton(btn1);
+//       button4 = readButton(btn4);
+//       if (button1 && button4)
+//       {
+//         digitalWrite(led, LOW);
+//         mode = 0;
+//       }
+//       break;
+//     }
+//   }
 // }
+
+// OLD LOOP
+void loop()
+{
+  motorBerhenti();
+  while (!start)
+  {
+    motorBerhenti();
+    digitalWrite(led, HIGH);
+    startBtn = readButton(btn4);
+    calibrateBtn = readButton(btn1);
+
+    if (startBtn)
+    {
+      digitalWrite(led, LOW);
+      start = true;
+    }
+    else if (calibrateBtn)
+    {
+      calibrate = true;
+      ledblink(3, 500);
+      while (calibrate)
+      {
+        kalibrasi();
+        calibrateBtn = readButton(btn1);
+        if (calibrateBtn)
+        {
+          ledblink(5, 500);
+          calibrate = false;
+        }
+      }
+    }
+  }
+  mazeLoop();
+  start = false;
+}
 
 // <---- Akhir Fungsi utama --->
 // --------------------------------------------------
