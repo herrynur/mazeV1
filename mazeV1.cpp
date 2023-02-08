@@ -1307,11 +1307,11 @@ float errorF(bool kondisi)
   {
     if (s[i] >= adcrange[i])
     {
-      hasil_adc[i] = 1;
+      hasil_adc[i] = 0;
     }
     else
     {
-      hasil_adc[i] = 0;
+      hasil_adc[i] = 1;
     }
   }
   caseSensor = ((hasil_adc[11] * 1) + (hasil_adc[10] * 2) + (hasil_adc[9] * 4) + (hasil_adc[8] * 8) + (hasil_adc[7] * 16) + (hasil_adc[6] * 32) + (hasil_adc[5] * 64) + (hasil_adc[4] * 128) + (hasil_adc[3] * 256) + (hasil_adc[2] * 512) + (hasil_adc[1] * 1024) + (hasil_adc[0] * 2048));
